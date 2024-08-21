@@ -3,120 +3,111 @@ import { ref } from "vue";
 
 
 let showVal = ref('0')
-let calcArr = [0]
+let calcArr = ['0']
 let isComplete = false
 
-const calc = (e) => {
+const pressKeyBtn = (e) => {
   const ele = e.target
   if (ele.classList.contains('display')) {
     return
   }
 
-  let len
   const val = String(ele.innerHTML)
   
-  switch(val) {
+  if (isFunKey(val)) {
+    addFunKey(val)
+  }
+  else {
+    addNumber(val)
+  }
+  // console.log(showVal.value, calcArr)
+}
+
+const addFunKey = key => {
+  let cnt = calcArr.length
+
+  switch(key) {
     case 'AC':
       showVal.value = '0'
-      calcArr = [0]
+      calcArr = ['0']
       break
       
     case '.':
-      showVal.value = (showVal.value.includes(val)) ? showVal.value : showVal.value + val
+      showVal.value = (showVal.value.includes(key)) ? showVal.value : showVal.value + key
       break
     
     case '=':
-      if (calcArr.length == 2) {
+      if (cnt == 2) {
         calcArr[2] = calcArr[0]
       }
 
-      if (calcArr.length > 2) {
+      if (cnt > 2) {
         calcArr = calculator(calcArr)
         isComplete = true
       }
       break
 
     case '+/-':
-      len = calcArr.length-1
-      if (!isFunKey(calcArr[len])) {
-        calcArr[len] = (-Number(calcArr[len])).toString()
-        showVal.value = calcArr[len]
+      cnt--
+      if (!isFunKey(calcArr[cnt])) {
+        calcArr[cnt] = (-Number(calcArr[cnt])).toString()
+        showVal.value = calcArr[cnt]
       }
       
       break
 
     case '%':
-      len = calcArr.length-1
-      if (!isFunKey(calcArr[len])) {
-        calcArr[len] = (Number(calcArr[len])/100).toString()
-        showVal.value = calcArr[len]
+      cnt--
+      if (!isFunKey(calcArr[cnt])) {
+        calcArr[cnt] = (Number(calcArr[cnt])/100).toString()
+        showVal.value = calcArr[cnt]
       }
       break
-
 
     default:
-      if (isFunKey(val)) {
-        if (calcArr.length == 1) {
-          calcArr.push(val)
-        }
-        else if (calcArr.length == 2) {
-          isComplete = false
-          calcArr[1] = val
-        }
-        else {
-          calcArr = calculator(calcArr)
-          calcArr.push(val)
-        }
-        
+      if (cnt == 1) {
+        calcArr.push(key)
+      }
+      else if (cnt == 2) {
+        isComplete = false
+        calcArr[1] = key
       }
       else {
-        
-        if (calcArr.length == 2) {
-          showVal.value = '0'
-        }
-
-        showVal.value = (showVal.value === '0' || isComplete) ? val : showVal.value + val
-        isComplete = false
-        if (calcArr.length == 1) {
-          calcArr[0] = showVal.value
-        }
-        else {
-          calcArr[2] = showVal.value
-        }
-
-      }
-      
-      //console.log(showVal.value, calcArr)
+        calcArr = calculator(calcArr)
+        calcArr.push(key)
+      }      
       break
   }
-  
 }
 
+const addNumber = num => {      
+  if (calcArr.length == 2) {
+    showVal.value = '0'
+  }
+
+  showVal.value = (showVal.value === '0' || isComplete) ? num : showVal.value + num
+  isComplete = false
+  if (calcArr.length == 1) {
+    calcArr[0] = showVal.value
+  }
+  else {
+    calcArr[2] = showVal.value
+  }
+}
+
+
 const isFunKey = (key) => {
-  const keyarr = ['+/-', '+', '–', '=', '×', '÷', '%']
-  return keyarr.includes(key)
+  const funKey = ['+/-', '+', '–', '=', '×', '÷', '%', 'AC' ,'.' ,'=' ,'+/-' ,'%']
+  return funKey.includes(key)
 }
 
 const calculator = calcArr => {
-  let operator, sum = 0;
-
-  switch(calcArr[1]) {
-    case '×':
-      operator = '*'
-      break
-    case '÷':
-      operator = '/'
-      break
-    case '–':
-      operator = '-'
-      break
-    default:
-      operator = calcArr[1] 
-      break
-
-  }
-
-  sum = eval(`${calcArr[0]} ${operator} ${calcArr[2]}`).toString()
+  const SYMBOL = {'×':'*', '÷':'/', '–':'-'}
+  let sum = 0, funKey = calcArr[1];
+  
+  funKey = (SYMBOL[funKey]) ? SYMBOL[funKey] : funKey;
+  
+  sum = eval(`${calcArr[0]} ${funKey} ${calcArr[2]}`).toString()
   calcArr = [sum]
   showVal.value = sum
 
@@ -126,7 +117,7 @@ const calculator = calcArr => {
 
 <template>
   <main>
-    <div class="calc" @click="calc">
+    <div class="calc" @click="pressKeyBtn">
       <div class="display display1">{{ showVal }}</div>
 
       <div class="row">
