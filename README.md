@@ -37,3 +37,6 @@ Vue_Calculator 是一個基於 Vue.js 構建的簡單計算器應用，支持基
 簡單直觀的用戶界面
 
 ![image](https://github.com/user-attachments/assets/7ea28271-4412-459b-9c97-7c16d9e7a392)
+
+
+#### ※ 待優化項目:增加支援鍵盤輸入
